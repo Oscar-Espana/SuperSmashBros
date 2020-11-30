@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Button, Modal, Input } from "antd";
+import { Card, Row, Col, Button, Modal, Input, Typography, Space } from "antd";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-
 import axios from "axios";
 
 const { Meta } = Card;
+const { Text } = Typography;
 const url = "https://warm-shore-85713.herokuapp.com/characters";
 
 const App = () => {
   const [dataAPI, setDataAPI] = useState([]);
   const [modalInsertar, setModalInsertar] = useState(false);
+  const [modalVerHeroe, setModalVerHeroe] = useState(false);
   const [heroeSeleccionado, setHeroeSeleccionado] = useState({
     name: "",
     game: "",
@@ -26,8 +27,6 @@ const App = () => {
       ...prevState,
       [id]: [value],
     }));
-
-    console.log(heroeSeleccionado);
   };
 
   const peticionGet = async () => {
@@ -62,6 +61,15 @@ const App = () => {
     setModalInsertar(!modalInsertar);
   };
 
+  const abrirCerrarModalVerHeroe = () => {
+    setModalVerHeroe(!modalVerHeroe);
+  };
+
+  const seleccionarHeroe = (heroe) => {
+    setHeroeSeleccionado(heroe);
+    abrirCerrarModalVerHeroe();
+  };
+
   useEffect(async () => {
     await peticionGet();
   }, []);
@@ -85,7 +93,14 @@ const App = () => {
                   <EditOutlined />
                 </Button>,
               ]}
-              cover={<img alt={item.name} height="250px" src={item.imageURL} />}
+              cover={
+                <img
+                  alt={item.name}
+                  height="250px"
+                  src={item.imageURL}
+                  onClick={() => seleccionarHeroe(item)}
+                />
+              }
             >
               <Meta title={item.name} description={item.game} />
             </Card>
@@ -133,6 +148,42 @@ const App = () => {
           placeholder="Descripción del héreo"
           onChange={handleChange}
         />
+      </Modal>
+
+      <Modal
+        centered
+        title="Ver Héroe"
+        onCancel={abrirCerrarModalVerHeroe}
+        visible={modalVerHeroe}
+        footer={null}
+      >
+        <Space direction="vertical">
+          <img
+            alt={heroeSeleccionado.name}
+            height="250px"
+            src={heroeSeleccionado.imageURL}
+          />
+          <div>
+            <Text>Nombre: </Text> <Text strong>{heroeSeleccionado.name}</Text>
+          </div>
+          <div>
+            <Text>Juego: </Text> <Text strong>{heroeSeleccionado.game}</Text>
+          </div>
+          <div>
+            <Text>Género: </Text> <Text strong>{heroeSeleccionado.gender}</Text>
+          </div>
+          <div>
+            <Text>Clase: </Text> <Text strong>{heroeSeleccionado.kind}</Text>
+          </div>
+          <div>
+            <Text>Creado por: </Text>{" "}
+            <Text strong>{heroeSeleccionado.createdBy}</Text>
+          </div>
+          <div>
+            <Text>Descripción: </Text>{" "}
+            <Text strong>{heroeSeleccionado.description}</Text>
+          </div>
+        </Space>
       </Modal>
     </div>
   );
